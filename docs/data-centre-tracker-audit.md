@@ -182,3 +182,42 @@ neither figure added in this pass has a published definition.
 
 
 
+
+## Fact-check pass 5 (27 September 2026)
+
+An external fact-check of the live register found no arithmetic errors but four classes of data
+error. Corrections are in `supabase/migrations/20260927220000_tracker_fact_check_corrections.sql`,
+which updates 20 published records and writes each change to the public `index_change_log`.
+
+**Regions.** South Mimms (Hertsmere), Harlow (Essex) and both Hemel Hempstead (Dacorum) records
+were stored as South East. All four are in the East of England region. South East England falls
+from 6 to 2 projects; East of England rises from 1 to 5.
+
+**Summaries contradicting the record's own capacity.** Five summaries said no capacity was
+recorded while the record showed a figure: GreenScale Derry (100 MW grid connection), Cambois
+(720 MW IT load, committee report), Manor Farm (72 MW IT load, decision letter), VIRTUS LONDON1
+(4.3 MW IT load, operator spec sheet) and Tudor Works (31 MW IT power, Colt London 4 page). The
+figures were correct; the summaries were rewritten to name their source. The Redheughs summary
+(213 MW) and record (212.42 MW) now both reflect the reported range.
+
+**Status.** "Under construction" was 0. Cambois (earthworks from October 2025, phase 1 reserved
+matters December 2025), Tudor Works (Colt London 4, ground broken February 2023), DataVita DV3
+(funded August 2026) and Rover Way (Latos, December 2024) move to under construction. Vantage
+Bridgend's summary still described a pending application; it was approved in October 2025.
+
+**Published capacity added.** Hayes Bridge: 250 MW stated electrical demand (Hillingdon
+committee report). Kao Data Stockport: 40 MW, definition not published, excluded from totals.
+
+**Names added.** Equinix (South Mimms, acquired October 2025), QTS, Colt DCS, Tritax Big Box
+(Manor Farm), Latos, Shelborn Drummond, Segro / Pure DC, Digital Land & Development / Peel Waters,
+Apatura and QuestPit. North Wales AI Growth Zone jobs corrected to 3,450.
+
+Expected headline figures after the migration: 33 projects; operational 10, under construction
+4, approved 12, proposed 6, refused 1. Published IT load is unchanged at 827.3 MW from 4 projects
+(pipeline split: under construction 751 MW, approved 72 MW). Undefined-MW records: 4.
+
+**Not changed, deliberately.** Stellium's 80 MW stays definition-unclear (operator and Colo-X
+figures conflict). Hayes Bridge and Equinix Wexham Road decision dates were not changed; the
+committee date differs from the recorded date, but the decision-notice date was not retrieved.
+The "27 verified with visible sources" and "0 unverified" figures use different definitions and
+should be relabelled in code.
