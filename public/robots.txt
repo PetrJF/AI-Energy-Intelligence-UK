@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /AIAdmin
+Disallow: /dashboard
+Disallow: /account
+Disallow: /login
+Disallow: /checkout
+
+Sitemap: https://aienergyintelligence.co.uk/sitemap.xml

@@ -1,0 +1,2 @@
+ALTER TABLE public.leads ADD COLUMN IF NOT EXISTS unsubscribed_at timestamptz, ADD COLUMN IF NOT EXISTS last_alerted_at timestamptz;
+CREATE INDEX IF NOT EXISTS leads_alert_source_idx ON public.leads (source) WHERE unsubscribed_at IS NULL;

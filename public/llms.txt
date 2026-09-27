@@ -1,0 +1,42 @@
+# AI Energy Intelligence UK — UK AI Energy Intelligence Centre
+
+> Free UK-focused calculators, analysis and reports on the electricity cost, infrastructure impact and business case for AI. Three expert hubs: Energy Cost, Infrastructure and Business.
+
+## Hubs
+
+- [Energy Cost Hub](/energy-cost): Calculators for AI electricity, AI search and model training energy and cost.
+- [Infrastructure Hub](/infrastructure): Grid impact, growth zones and data centre demand for the UK.
+- [Business Hub](/business): AI ROI, energy savings and readiness assessment tools.
+
+## Energy Cost Tools
+
+- [AI Electricity Cost Calculator](/energy-cost/ai-electricity-cost-calculator): Estimate the electricity cost of AI usage.
+- [AI Search Cost Calculator](/energy-cost/ai-search-cost-calculator): Compare the energy cost of AI search vs traditional search.
+- [AI Model Training Calculator](/energy-cost/ai-model-training-calculator): Estimate the energy and cost of training AI models.
+
+## Infrastructure Tools
+
+- [AI Grid Impact Forecast](/infrastructure/ai-grid-impact-forecast): Forecast AI's impact on UK grid demand.
+- [AI Growth Zone Impact](/infrastructure/ai-growth-zone-impact): Model regional AI growth zone impact.
+- [Data Centre Demand Calculator](/infrastructure/data-centre-demand-calculator): Estimate data centre electricity demand.
+- [AI Data Centre Electricity Calculator](/ai-data-centre-electricity-calculator): Server load, PUE and UK cost.
+- [AI Water Consumption Calculator](/ai-water-consumption-calculator): Estimate AI data centre water use.
+
+## Business Tools
+
+- [AI ROI Calculator](/business/ai-roi-calculator): Calculate the ROI and payback of AI investment.
+- [AI Energy Savings Calculator](/business/ai-energy-savings-calculator): Model energy savings from AI.
+- [AI Readiness Assessment](/business/ai-readiness-assessment): Score your organisation's AI readiness.
+
+## Guides & Analysis
+
+- [AI Energy Myth Checker](/ai-energy-myth-checker): Evidence-led verdicts on common AI energy myths.
+- [AI Electricity Cost Guide](/guides/ai-electricity-cost-calculator): UK business guide to AI electricity cost.
+- [Research](/research): Analysis and reports on AI energy and infrastructure.
+
+## Optional
+
+- [About](/about): About AI Energy Intelligence UK.
+- [Pricing](/pricing): Plans and pricing.
+- [Privacy](/privacy): Privacy policy.
+- [Terms](/terms): Terms of service.

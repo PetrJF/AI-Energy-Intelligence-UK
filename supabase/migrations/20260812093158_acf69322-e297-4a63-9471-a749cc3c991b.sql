@@ -1,0 +1,1 @@
+DELETE FROM public.page_views WHERE path = '/test';

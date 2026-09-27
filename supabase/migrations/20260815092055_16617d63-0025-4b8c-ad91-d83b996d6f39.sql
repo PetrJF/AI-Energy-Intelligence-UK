@@ -1,0 +1,157 @@
+alter table public.index_datapoints drop constraint if exists index_datapoints_data_classification_check;
+alter table public.index_datapoints add constraint index_datapoints_data_classification_check
+  check (data_classification = any (array['verified','official','calculated','industry_estimate','aie_estimate','forecast','insufficient_evidence','not_disclosed','not_available']));
+alter table public.index_indicators drop constraint if exists index_indicators_data_classification_check;
+alter table public.index_indicators add constraint index_indicators_data_classification_check
+  check (data_classification = any (array['verified','official','calculated','industry_estimate','aie_estimate','forecast','insufficient_evidence','not_disclosed','not_available']));
+
+alter table public.index_datapoints add column if not exists superseded_by uuid references public.index_datapoints(id) on delete set null;
+alter table public.index_datapoints add column if not exists superseded_reason text;
+create unique index if not exists index_indicators_slug_uq on public.index_indicators (slug);
+
+insert into public.index_sources
+  (organisation, title, url, publication_date, source_type, indicators_supported, accessed_at,
+   notes, reporting_period, geographic_coverage, source_class, reliability_status, last_reviewed_at, status)
+select
+  'Department for Energy Security and Net Zero (DESNZ)',
+  'Energy Trends, June 2026 - special feature article: Data centre electricity consumption in Great Britain, 2020 to 2024',
+  'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+  '2026-06-30', 'official',
+  'Great Britain data-centre electricity consumption 2020-2024; data-centre share of grid electricity consumption; regional and local-authority breakdowns',
+  '2026-08-15',
+  'Accompanying official workbook: Data_centre_electricity_consumption_in_Great_Britain__2020_to_2024.xlsx (https://assets.publishing.service.gov.uk/media/6a3e9f32eaee00074150f678/Data_centre_electricity_consumption_in_Great_Britain__2020_to_2024.xlsx). Worksheets used: Table_1 (consumption, GWh), Table_2 (consumption, TWh, including the percentage change 2020 to 2024), Table_3 (data-centre share of electricity consumed from the grid). The figures are DESNZ statistical estimates of electricity consumed from the public grid by data centres; they are not directly metered totals and are not separated by workload type.',
+  '2020 to 2024', 'great_britain', 'primary', 'primary_verified', '2026-08-15', 'published'
+where not exists (
+  select 1 from public.index_sources
+  where url = 'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf'
+);
+
+update public.index_indicators set
+  slug = 'gb-dc-electricity-consumption-desnz',
+  name = 'Data-centre electricity consumption, Great Britain',
+  short_name = 'GB data-centre consumption (DESNZ)',
+  description = 'Electricity consumed from the public grid by data centres in Great Britain, as estimated by DESNZ.',
+  unit = 'TWh per year',
+  category = 'demand',
+  data_classification = 'official',
+  is_forecast = false,
+  source_name = 'Department for Energy Security and Net Zero (DESNZ)',
+  source_url = 'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+  source_type = 'official',
+  update_frequency = 'annual',
+  methodology = 'DESNZ statistical estimate of electricity consumed from the public grid by data centres, published in the Energy Trends June 2026 special feature article and its accompanying workbook (Table_2, TWh).',
+  caveats = 'Covers data centres generally. It is not an estimate of electricity used specifically by artificial intelligence. Great Britain only, so Northern Ireland is excluded. Measures electricity taken from the public grid, so any on-site generation is excluded.',
+  display_order = 1,
+  last_updated_at = now(),
+  status = 'published'
+where id = 'e5b96cc9-5e0c-4bea-9aaf-5ac104cc1ac1';
+
+insert into public.index_indicators
+  (slug, name, short_name, category, description, unit, direction, source_name, source_url, source_type,
+   update_frequency, methodology, caveats, display_order, status, subindex_id, data_classification, is_forecast, last_updated_at)
+values
+  ('gb-dc-share-of-grid-electricity-desnz',
+   'Data-centre share of Great Britain grid electricity consumption',
+   'GB share (DESNZ)', 'demand',
+   'Data-centre electricity consumption as a share of all electricity consumed from the grid in Great Britain.',
+   'Percentage', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Taken directly from the DESNZ workbook, Table_3 (share of electricity consumed from the grid).',
+   'Covers data centres generally, not AI workloads. DESNZ rounds this to 2 per cent in the article text; the workbook value for 2024 is 1.79 per cent.',
+   2, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'official', false, now()),
+  ('gb-dc-consumption-change-2020-2024-twh',
+   'Change in GB data-centre electricity consumption, 2020 to 2024 (absolute)',
+   'Change 2020-2024 (TWh)', 'demand',
+   'Absolute increase in data-centre electricity consumption in Great Britain between 2020 and 2024.',
+   'TWh per year', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Calculated from the DESNZ workbook, Table_2: 2024 value minus 2020 value.',
+   'A change between two DESNZ statistical estimates, not a metered measurement. Not AI-specific.',
+   3, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'calculated', false, now()),
+  ('gb-dc-consumption-growth-2020-2024',
+   'Growth in GB data-centre electricity consumption, 2020 to 2024',
+   'Growth 2020-2024', 'demand',
+   'Percentage increase in data-centre electricity consumption in Great Britain between 2020 and 2024.',
+   'Percentage change', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Published in the DESNZ workbook, Table_2, percentage change column (0.4118, reported by DESNZ as 41 per cent).',
+   'A historical DESNZ estimate of change, not a real-time reading and not AI-specific.',
+   4, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'official', false, now()),
+  ('london-dc-electricity-consumption',
+   'Data-centre electricity consumption, London',
+   'London', 'demand',
+   'Electricity consumed from the grid by data centres in London (Inner and Outer London combined).',
+   'TWh per year', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Sum of the Inner London and Outer London rows in the DESNZ workbook, Table_2.',
+   'Describes total data-centre consumption in the region, not the location of AI workloads.',
+   5, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'calculated', false, now()),
+  ('south-east-dc-electricity-consumption',
+   'Data-centre electricity consumption, South East',
+   'South East', 'demand',
+   'Electricity consumed from the grid by data centres in the South East of England.',
+   'TWh per year', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Taken directly from the DESNZ workbook, Table_2, South East row.',
+   'Describes total data-centre consumption in the region, not the location of AI workloads.',
+   6, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'official', false, now()),
+  ('london-south-east-share-of-gb-dc-consumption',
+   'London and South East combined share of GB data-centre consumption',
+   'London and South East share', 'demand',
+   'Share of all Great Britain data-centre electricity consumption accounted for by London and the South East together.',
+   'Percentage', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Calculated from the DESNZ workbook, Table_2: (Inner London + Outer London + South East) divided by Great Britain.',
+   'A concentration measure for data centres generally, not AI workloads.',
+   7, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'calculated', false, now()),
+  ('slough-dc-electricity-consumption',
+   'Data-centre electricity consumption, Slough',
+   'Slough', 'demand',
+   'Electricity consumed from the grid by data centres in the Slough local authority area.',
+   'TWh per year', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Taken directly from the DESNZ workbook, Table_2, Slough row.',
+   'A local-authority figure, shown separately from the regional and Great Britain totals. Not AI-specific.',
+   8, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'official', false, now()),
+  ('slough-share-of-gb-dc-consumption',
+   'Slough share of GB data-centre electricity consumption',
+   'Slough share of GB', 'demand',
+   'Share of all Great Britain data-centre electricity consumption accounted for by Slough.',
+   'Percentage', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Calculated from the DESNZ workbook, Table_2: Slough divided by Great Britain.',
+   'A concentration measure for data centres generally, not AI workloads.',
+   9, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'calculated', false, now()),
+  ('dc-share-of-slough-grid-electricity',
+   'Data-centre share of Slough grid electricity consumption',
+   'Share of Slough grid', 'demand',
+   'Share of all electricity consumed from the grid in Slough that is consumed by data centres.',
+   'Percentage', 'higher_is_more_pressure',
+   'Department for Energy Security and Net Zero (DESNZ)',
+   'https://assets.publishing.service.gov.uk/media/6a423ab97ac6fd9c6a94aac7/Energy_Trends_June_2026.pdf',
+   'official', 'annual',
+   'Taken directly from the DESNZ workbook, Table_3, Slough row.',
+   'A local grid measure for Slough only. It says nothing about the share elsewhere in Great Britain and is not AI-specific.',
+   10, 'published', '60cabc18-d2b4-486a-aa38-eb4303eec764', 'official', false, now())
+on conflict (slug) do update set
+  name = excluded.name, short_name = excluded.short_name, description = excluded.description,
+  unit = excluded.unit, source_name = excluded.source_name, source_url = excluded.source_url,
+  methodology = excluded.methodology, caveats = excluded.caveats, display_order = excluded.display_order,
+  data_classification = excluded.data_classification, subindex_id = excluded.subindex_id,
+  status = excluded.status, last_updated_at = now();
