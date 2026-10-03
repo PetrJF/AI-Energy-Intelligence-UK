@@ -182,3 +182,30 @@ neither figure added in this pass has a published definition.
 
 
 
+
+## Corrections, 3 October 2026
+
+Migration: `supabase/migrations/20261003220000_tracker_corrections_oct_2026.sql`. Every change is
+logged publicly in `index_change_log`. The script can be run more than once without duplicating
+anything.
+
+| Record | Change | Evidence |
+|---|---|---|
+| Microsoft Newport, Imperial Park | Status approved → under construction; jobs now 750 construction / 200 permanent | [Trade & Invest Wales, 13 Jul 2026](https://tradeandinvest.wales/inside-story/microsoft); [Senedd Research, Jul 2026](https://research.senedd.wales/media/eytgh5cx/data-centres-in-wales.pdf) |
+| Nscale Loughton | Investment £2bn added; 50 MW initial / 90 MW max, 23,040 GPUs, June 2026 approval of revised scheme, Q2 2027 target | [Nscale](https://www.nscale.com/press-releases/nscale-uk-ai-infrastructure-announcement); [Telegraph](https://www.telegraph.co.uk/business/2026/07/05/labour-pressured-local-council-to-back-giant-ai-data-centr/); [Politico](https://www.politico.eu/article/openai-stargate-uk-pause-setback-britain-ai-ambitions/); [Euronews](https://www.euronews.com/2026/09/29/uks-biggest-ai-supercomputer-may-have-to-wait-until-2030s-for-enough-power) |
+| DC01UK / Equinix Hertfordshire Campus | Summary: £3.9bn, first reserved matters submitted, construction 2027, opening 2031 (not 2030) due to grid date, ~2,500 construction jobs | [Equinix FAQ](https://equinixtogether.com/hertfordshire/frequently-asked-questions/) |
+| North East AI Growth Zone | Operator note and summary no longer present Stargate UK as active; no applications or construction at Cobalt Park when paused | [BBC](https://www.bbc.com/news/articles/clyd032ej70o); [Computer Weekly](https://www.computerweekly.com/news/366641483/OpenAI-pauses-Stargate-UK-Sudden-setback-or-calculated-move) |
+| Cambois (QTS) | Investment £10bn added; timetable: DC1–2 start later 2026, operational 2029, four buildings by 2030 | [QTS](https://q.com/data-centers/cambois/); [Business Northumberland](https://www.businessnorthumberland.co.uk/qts-applies-to-speed-up-10bn-uk-data-centre-delivery/) |
+| Lanarkshire AI Growth Zone | Local authority filled: North Lanarkshire Council | [Data Centre Review](https://datacentrereview.com/2026/09/datavita-submits-850m-dv4-plans-in-scotlands-first-ai-growth-zone/) |
+
+Checked and deliberately left unchanged:
+
+- **Skelton Grange, Leeds** stays "proposed". BBC and the Yorkshire Evening Post (September 2026)
+  describe it as "granted permission", but the Plans Panel only resolved to grant on 23 April 2026,
+  delegated subject to a section 106 agreement, and the register still shows the application
+  awaiting decision. Move to "approved" once the decision notice for 25/06139/FU is issued.
+- **Amazon Ridgeway, Iver**: already shows the 28 September 2026 approval.
+- **DataVita DV4, Woodlands Park, Xlinks Devon, AWS Maylands Avenue, Equinix Wexham Road,
+  Court Lane**: current records match the latest sources.
+- **DC01UK grid connection field** (1 October 2029) conflicts with Equinix's 2031 opening date.
+  The field was left as it is until the connection offer is confirmed.
