@@ -187,6 +187,53 @@ export const listDcProjects = createServerFn({ method: "GET" }).handler(async ()
   return rows.map((r) => normalise(r, registry));
 });
 
+/**
+ * Activity signal (job post, tender, permit, supplier registration) linked to a project.
+ * Signals indicate activity such as staffing; they do not prove planning, funding, grid
+ * connection, construction or capacity, and they never feed the Reality Score.
+ * Only published signals are returned, and admin_notes is never exposed.
+ */
+export type DcSignal = {
+  id: string;
+  signal_type: string;
+  signal_role: string | null;
+  organisation: string;
+  title: string;
+  location: string | null;
+  event_date: string | null;
+  listed_date: string | null;
+  observed_date: string;
+  source_url: string;
+  source_platform: string;
+  source_class: string;
+  reference: string | null;
+  extract: string | null;
+  indicates: string | null;
+  does_not_indicate: string | null;
+  link_confidence: string;
+};
+
+export type DcProjectWithSignals = DcProject & { signals: DcSignal[] };
+
+const DC_SIGNAL_PUBLIC_COLUMNS =
+  "id,signal_type,signal_role,organisation,title,location,event_date,listed_date,observed_date,source_url,source_platform,source_class,reference,extract,indicates,does_not_indicate,link_confidence";
+
+/** Loads published signals for a project. Returns [] if the signals table is not yet installed. */
+async function loadSignals(db: { from: (t: string) => any }, projectId: string): Promise<DcSignal[]> {
+  const { data, error } = await db
+    .from("dc_project_signals")
+    .select(DC_SIGNAL_PUBLIC_COLUMNS)
+    .eq("project_id", projectId)
+    .eq("status_publication", "published")
+    .order("event_date", { ascending: false, nullsFirst: false })
+    .limit(50);
+  if (error) {
+    console.warn("dc_project_signals unavailable:", error.message);
+    return [];
+  }
+  return (data ?? []) as DcSignal[];
+}
+
 export const getDcProject = createServerFn({ method: "GET" })
   .inputValidator((d: { slug: string }) => z.object({ slug: z.string().min(1) }).parse(d))
   .handler(async ({ data }) => {
@@ -201,7 +248,9 @@ export const getDcProject = createServerFn({ method: "GET" })
     if (!row) return null;
     const rows = [row as Record<string, unknown>];
     const registry = await loadRegistry(db, rows);
-    return normalise(rows[0]!, registry);
+    const project = normalise(rows[0]!, registry);
+    const signals = await loadSignals(db as unknown as { from: (t: string) => any }, project.id);
+    return { ...project, signals } as DcProjectWithSignals;
   });
 
 const projectInput = z.object({
