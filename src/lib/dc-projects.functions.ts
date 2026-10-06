@@ -200,10 +200,13 @@ export type DcSignal = {
   organisation: string;
   title: string;
   location: string | null;
+  event_date: string | null;
   listed_date: string | null;
   observed_date: string;
   source_url: string;
   source_platform: string;
+  source_class: string;
+  reference: string | null;
   extract: string | null;
   indicates: string | null;
   does_not_indicate: string | null;
@@ -213,7 +216,7 @@ export type DcSignal = {
 export type DcProjectWithSignals = DcProject & { signals: DcSignal[] };
 
 const DC_SIGNAL_PUBLIC_COLUMNS =
-  "id,signal_type,signal_role,organisation,title,location,listed_date,observed_date,source_url,source_platform,extract,indicates,does_not_indicate,link_confidence";
+  "id,signal_type,signal_role,organisation,title,location,event_date,listed_date,observed_date,source_url,source_platform,source_class,reference,extract,indicates,does_not_indicate,link_confidence";
 
 /** Loads published signals for a project. Returns [] if the signals table is not yet installed. */
 async function loadSignals(db: { from: (t: string) => any }, projectId: string): Promise<DcSignal[]> {
@@ -222,7 +225,7 @@ async function loadSignals(db: { from: (t: string) => any }, projectId: string):
     .select(DC_SIGNAL_PUBLIC_COLUMNS)
     .eq("project_id", projectId)
     .eq("status_publication", "published")
-    .order("listed_date", { ascending: false, nullsFirst: false })
+    .order("event_date", { ascending: false, nullsFirst: false })
     .limit(50);
   if (error) {
     console.warn("dc_project_signals unavailable:", error.message);

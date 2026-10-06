@@ -132,8 +132,13 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 const SIGNAL_TYPE_LABELS: Record<string, string> = {
   job_post: "Job post",
   tender: "Tender",
+  contract_award: "Contract award",
   supplier_registration: "Supplier registration",
-  permit: "Permit",
+  permit: "Environmental permit",
+  planning_application: "Planning application",
+  pre_application: "Pre-application",
+  grid: "Grid / power",
+  company_filing: "Company filing",
   other: "Signal",
 };
 
@@ -156,9 +161,9 @@ function SignalsSection({ signals }: { signals: DcSignal[] }) {
         <Activity className="h-4 w-4" aria-hidden /> Activity signals
       </h2>
       <p className="mt-2 text-sm text-muted-foreground">
-        Hiring and procurement activity linked to this project. Signals indicate activity such as
-        staffing. They do not prove planning, funding, grid connection, construction or capacity,
-        and they do not affect the Reality Score.
+        Hiring, planning, permit, grid and procurement activity linked to this project. Signals
+        indicate activity; on their own they do not prove permission, funding, a secured grid
+        connection, construction or capacity, and they do not affect the Reality Score.
       </p>
       <ul className="mt-3 space-y-3">
         {signals.map((s) => (
@@ -169,6 +174,9 @@ function SignalsSection({ signals }: { signals: DcSignal[] }) {
               </span>
               <span className="rounded-full border border-border px-2.5 py-1">
                 {LINK_CONFIDENCE_LABELS[s.link_confidence] ?? "Link unconfirmed"}
+              </span>
+              <span className="rounded-full border border-dashed border-border px-2.5 py-1">
+                {s.source_class === "primary" ? "Primary record" : "Secondary source"}
               </span>
             </div>
             <a
@@ -183,8 +191,10 @@ function SignalsSection({ signals }: { signals: DcSignal[] }) {
             <p className="mt-1 text-xs text-muted-foreground">
               {[
                 s.source_platform,
+                s.reference,
                 s.location,
-                s.listed_date ? `listed ${formatDate(s.listed_date)}` : null,
+                s.event_date ? `event ${formatDate(s.event_date)}` : null,
+                s.listed_date ? `published ${formatDate(s.listed_date)}` : null,
                 `observed ${formatDate(s.observed_date)}`,
               ]
                 .filter(Boolean)
@@ -210,7 +220,7 @@ function SignalsSection({ signals }: { signals: DcSignal[] }) {
         ))}
       </ul>
       <p className="mt-2 text-xs text-muted-foreground">
-        Listing dates can reflect reposted adverts.
+        Job-advert dates can reflect reposted listings.
       </p>
     </section>
   );
