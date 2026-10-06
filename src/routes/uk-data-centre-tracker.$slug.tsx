@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, MapPin, ShieldCheck, Zap, CalendarClock } from "lucide-react";
-import { getDcProject, type DcProject } from "@/lib/dc-projects.functions";
+import { ArrowLeft, ExternalLink, MapPin, ShieldCheck, Zap, CalendarClock, Activity } from "lucide-react";
+import { getDcProject, type DcProject, type DcProjectWithSignals, type DcSignal } from "@/lib/dc-projects.functions";
 import {
   DC_STATUS_LABELS,
   DC_TYPE_LABELS,
@@ -129,10 +129,98 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+const SIGNAL_TYPE_LABELS: Record<string, string> = {
+  job_post: "Job post",
+  tender: "Tender",
+  supplier_registration: "Supplier registration",
+  permit: "Permit",
+  other: "Signal",
+};
+
+const LINK_CONFIDENCE_LABELS: Record<string, string> = {
+  named_in_post: "Project named in source",
+  likely: "Likely linked",
+  unconfirmed: "Link unconfirmed",
+};
+
+function formatDate(d: string | null) {
+  if (!d) return null;
+  return new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB");
+}
+
+function SignalsSection({ signals }: { signals: DcSignal[] }) {
+  if (signals.length === 0) return null;
+  return (
+    <section aria-labelledby="signals-heading" className="mt-10">
+      <h2 id="signals-heading" className="inline-flex items-center gap-2 text-lg font-semibold">
+        <Activity className="h-4 w-4" aria-hidden /> Activity signals
+      </h2>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Hiring and procurement activity linked to this project. Signals indicate activity such as
+        staffing. They do not prove planning, funding, grid connection, construction or capacity,
+        and they do not affect the Reality Score.
+      </p>
+      <ul className="mt-3 space-y-3">
+        {signals.map((s) => (
+          <li key={s.id} className="rounded-lg border border-dashed border-border bg-card p-4 text-sm">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="rounded-full bg-muted px-2.5 py-1">
+                {SIGNAL_TYPE_LABELS[s.signal_type] ?? "Signal"}
+              </span>
+              <span className="rounded-full border border-border px-2.5 py-1">
+                {LINK_CONFIDENCE_LABELS[s.link_confidence] ?? "Link unconfirmed"}
+              </span>
+            </div>
+            <a
+              href={s.source_url}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="mt-2 inline-flex items-center gap-1 font-medium underline"
+            >
+              {s.organisation}: {s.title}
+              <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+            </a>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {[
+                s.source_platform,
+                s.location,
+                s.listed_date ? `listed ${formatDate(s.listed_date)}` : null,
+                `observed ${formatDate(s.observed_date)}`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+            {s.extract && (
+              <blockquote className="mt-2 border-l-2 border-border pl-3 text-muted-foreground">
+                &ldquo;{s.extract}&rdquo;
+              </blockquote>
+            )}
+            {s.indicates && (
+              <p className="mt-2">
+                <span className="font-medium">Indicates:</span> {s.indicates}
+              </p>
+            )}
+            {s.does_not_indicate && (
+              <p className="mt-1 text-muted-foreground">
+                <span className="font-medium text-foreground">Does not show:</span>{" "}
+                {s.does_not_indicate}
+              </p>
+            )}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Listing dates can reflect reposted adverts.
+      </p>
+    </section>
+  );
+}
+
 function ProjectPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(projectQueryOptions(slug));
-  const p = data as DcProject;
+  const p = data as DcProjectWithSignals;
+  const signals = p.signals ?? [];
   const figures = capacityFigures(p);
   const scorePublished = hasPublishedRealityScore(p);
   const crumbs: Crumb[] = [
@@ -284,6 +372,8 @@ function ProjectPage() {
             </ul>
           </>
         )}
+
+        <SignalsSection signals={signals} />
 
         <h2 className="mt-10 text-lg font-semibold">Sources</h2>
         {p.all_sources.length === 0 ? (
